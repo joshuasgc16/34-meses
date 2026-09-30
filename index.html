@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>34 meses a tu lado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&family=Outfit:wght@400;500;600;700&display=stylesheet" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            perspective: 1200px;
+        }
+
+        /* Contenedor general fijo y centrado */
+        .captcha-container {
+            position: relative;
+            width: 440px;
+            max-width: 92vw;
+            height: 580px;
+            max-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Estilo base de las cajas de verificación y calendario */
+        .captcha-box {
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            border: 1px solid #d1d5db;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            box-sizing: border-box;
+        }
+
+        .captcha-box.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Cabecera azul de los captchas */
+        .captcha-header {
+            background-color: #1a73e8;
+            color: #ffffff;
+            padding: 18px 22px;
+            border-top-left-radius: 13px;
+            border-top-right-radius: 13px;
+        }
+
+        .captcha-header-text {
+            font-size: 12px;
+            font-weight: 400;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .captcha-header-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 4px 0 0 0;
+            letter-spacing: 0.2px;
+        }
+
+        /* CAPTCHA 1 */
+        .captcha-img-wrapper {
+            padding: 14px 22px 8px 22px;
+            background-color: #ffffff;
+        }
+
+        .captcha-img-container {
+            width: 100%;
+            height: 320px;
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .captcha-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .captcha-body {
+            padding: 12px 22px 18px 22px;
+            text-align: center;
+        }
+
+        .captcha-question {
+            font-size: 15px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .captcha-input {
+            width: 190px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            outline: none;
+            text-align: center;
+            background-color: #ffffff;
+        }
+
+        .captcha-input:focus {
+            border-color: #1a73e8;
+        }
+
+        .captcha-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .captcha-btn:hover {
+            background-color: #1557b0;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 8px;
+            text-align: left;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* CAPTCHA 2: Cuadrícula 3x3 */
+        .grid-wrapper {
+            padding: 14px 16px 8px 16px;
+            background-color: #ffffff;
+        }
+
+        .captcha-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            background-color: #e2e8f0;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .grid-item {
+            position: relative;
+            height: 105px;
+            background-color: #f8fafc;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .grid-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            box-sizing: border-box;
+            pointer-events: none;
+            transition: border-color 0.15s ease;
+            z-index: 2;
+        }
+
+        .grid-item:hover::before {
+            border-color: rgba(26, 115, 232, 0.5);
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .grid-item.selected::before {
+            border-color: #1a73e8;
+            border-width: 4px;
+        }
+
+        .grid-item.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background-color: #1a73e8;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 3;
+        }
+
+        .grid-footer {
+            padding: 8px 16px 16px 16px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* CALENDARIO FINAL */
+        .final-page {
+            padding: 24px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 1.2s ease, opacity 0.8s ease;
+            transform-origin: 35% 85%;
+        }
+
+        .final-page.zoomed-calendar {
+            transform: translate(-35%, -52%) scale(2.8);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            z-index: 50;
+        }
+
+        .final-page.enter-door {
+            transform: translate(-35%, -52%) scale(16);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 12px;
+            width: 100%;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .calendar-day-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            padding-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .calendar-cell {
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            border-radius: 6px;
+        }
+
+        .calendar-cell.empty {
+            background: transparent;
+        }
+
+        .calendar-cell.normal {
+            background-color: #f8fafc;
+            border: 1px solid #edf2f7;
+        }
+
+        .door-wrapper {
+            position: relative;
+            aspect-ratio: 1;
+            perspective: 600px;
+        }
+
+        .door-background-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 6px;
+            z-index: 1;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 10px 2px rgba(26, 115, 232, 0.4); transform: scale(1.06); }
+            100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); transform: scale(1); }
+        }
+
+        .door-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f8fafc;
+            color: #1a73e8;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 5;
+            transform-origin: left;
+            transform-style: preserve-3d;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        .door-panel:hover {
+            background-color: #f1f5f9;
+        }
+
+        .door-panel::after {
+            content: "❤";
+            position: absolute;
+            bottom: 2px;
+            font-size: 7px;
+        }
+
+        /* PANTALLA SECRETA GENERAL */
+        .secret-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #f0f4f8; 
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.6s ease;
+        }
+
+        .secret-page.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* SLIDER DE 3 PÁGINAS */
+        .pages-slider-container {
+            width: 500px;
+            max-width: 92vw;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pages-track {
+            display: flex;
+            width: 300%;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: translateX(0);
+        }
+
+        .page-pane {
+            width: calc(100% / 3);
+            box-sizing: border-box;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* TARJETA PÁGINA 1 */
+        .secret-card {
+            background: #ffffff;
+            padding: 34px 30px;
+            border-radius: 22px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d1d5db;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
+            overflow: hidden;
+        }
+
+        .secret-title {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            display: inline-block;
+            width: 100%;
+            padding-bottom: 8px;
+            border-bottom: 3px double #1e293b;
+        }
+
+        .top-section {
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .top-text {
+            flex: 1;
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: #334155;
+            text-align: justify;
+        }
+
+        .polaroid-wrapper {
+            flex-shrink: 0;
+            width: 150px;
+            background: #ffffff;
+            padding: 6px 6px 22px 6px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+            border: 1px solid #e2e8f0;
+            transform: rotate(3deg);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .polaroid-tape {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 42px;
+            height: 15px;
+            background-color: rgba(230, 230, 210, 0.75);
+            border-left: 1px dashed rgba(0,0,0,0.1);
+            border-right: 1px dashed rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .polaroid-img-box {
+            width: 100%;
+            height: 150px;
+            background-color: #f1f5f9;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .polaroid-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bottom-text {
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: #334155;
+            text-align: justify;
+            margin-bottom: 14px;
+        }
+
+        .secret-divider {
+            width: 100%;
+            height: 2px;
+            background-color: #000000;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nav-buttons-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-buttons-container.right-only {
+            justify-content: flex-end;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .arrow-btn svg {
+            width: 52px;
+            height: 28px;
+            fill: #000000;
+            stroke: none;
+            transition: fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
+        }
+
+        .arrow-btn:hover svg {
+            fill: #ffffff;
+            stroke: #000000;
+            stroke-width: 2.5px;
+        }
+
+        .arrow-btn.prev svg {
+            transform: scaleX(-1);
+        }
+
+        /* PÁGINAS 2 Y 3: CUADRADAS Y GRANDES */
+        .square-page-card {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 22px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d1d5db;
+            width: 440px;
+            height: 440px;
+            max-width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-top: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* CIELO NOCTURNO (PÁGINA 2) */
+        .night-sky-box {
+            width: 100%;
+            flex: 1;
+            background: radial-gradient(circle at center, #16264f 0%, #0d1629 100%);
+            border-radius: 16px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .star {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+            transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .heart-center-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            text-align: center;
+            opacity: 0;
+            transition: all 1s ease 0.8s;
+            pointer-events: none;
+            z-index: 5;
+            width: 100%;
+        }
+
+        .heart-center-content.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .heart-initials {
+            font-family: 'Cinzel', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 3px;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 25px rgba(26, 115, 232, 0.8);
+            margin-bottom: 4px;
+        }
+
+        .heart-subtitle {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10.5px;
+            color: #93c5fd;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+
+        .sky-instruction {
+            position: absolute;
+            bottom: 12px;
+            width: 100%;
+            text-align: center;
+            font-size: 11.5px;
+            color: #93c5fd;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .sky-instruction.hidden {
+            opacity: 0;
+        }
+
+        /* --- DISEÑO DE LA TARJETA DEL CONTADOR (PÁGINA 3) --- */
+        .countdown-content-box {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 16px;
+            border: 1px solid #334155;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .countdown-content-box::before {
+            content: "✨";
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 12px;
+            opacity: 0.3;
+        }
+
+        .countdown-content-box::after {
+            content: "✨";
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-size: 12px;
+            opacity: 0.3;
+        }
+
+        /* Título grande optimizado para mantenerse en una sola línea */
+        .countdown-title {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 700;
+            font-size: 17.5px; 
+            color: #f8fafc;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 24px;
+            display: inline-block;
+            white-space: nowrap;
+            border-bottom: 3.5px double #93c5fd;
+            padding-bottom: 6px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        /* Contenedor del reloj de lujo */
+        .countdown-grid {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 12px 8px;
+            min-width: 60px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .countdown-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.1;
+            text-shadow: 0 0 10px rgba(147, 197, 253, 0.5);
+        }
+
+        .countdown-label {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #93c5fd;
+            text-transform: uppercase;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* EFECTO DE FUEGOS ARTIFICIALES */
+        @keyframes fireworkBurst {
+            0% { transform: translate(0, 0) scale(0.2); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(1.2); opacity: 0; }
+        }
+
+        .firework-particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 20;
+            animation: fireworkBurst 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @media (max-width: 480px) {
+            .secret-card {
+                padding: 20px;
+            }
+            .top-section {
+                flex-direction: column-reverse;
+                align-items: center;
+            }
+            .polaroid-wrapper {
+                transform: rotate(0deg);
+                margin-bottom: 12px;
+            }
+            .countdown-title {
+                font-size: 14.5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="captcha-container" id="captchaContainer">
+        
+        <!-- INTERFAZ 1 -->
+        <div class="captcha-box active" id="captchaBox1">
+            <div class="captcha-header">
+                <p class="captcha-header-text">Verificación de seguridad</p>
+                <h1 class="captcha-header-title">Responde la pregunta</h1>
+            </div>
+
+            <div class="captcha-img-wrapper">
+                <div class="captcha-img-container">
+                    <img src="https://lh3.googleusercontent.com/d/1uaJc3XmMNDP5qVuUsi_JTcb8D-s03xT4" alt="Peluche">
+                </div>
+            </div>
+
+            <div class="captcha-body">
+                <div class="captcha-question">¿Cómo se llama este peluche?</div>
+                
+                <div class="input-group">
+                    <input type="text" id="captchaInput" class="captcha-input" placeholder="----------" autocomplete="off" spellcheck="false">
+                    <button class="captcha-btn" id="verifyBtn1">VERIFICAR</button>
+                </div>
+                
+                <div id="errorMessage1" class="error-message">No es la respuesta correcta, intenta de nuevo.</div>
+            </div>
+        </div>
+
+        <!-- INTERFAZ 2 -->
+        <div class="captcha-box" id="captchaBox2">
+            <div class="captcha-header">
+                <p class="captcha-header-text">Verificación de seguridad</p>
+                <h1 class="captcha-header-title">Selecciona cuáles son nuestros hijitos</h1>
+            </div>
+
+            <div class="grid-wrapper">
+                <div class="captcha-grid" id="captchaGrid">
+                    <div class="grid-item" data-index="1"><img src="https://lh3.googleusercontent.com/d/1IkjVKxfKjyemomTwxBGCmsF-IRVtBKsZ" alt="1"></div>
+                    <div class="grid-item" data-index="2"><img src="https://lh3.googleusercontent.com/d/14T4qGV7PU_J9AXtBKjuLy_0Zw64D0ASd" alt="2"></div>
+                    <div class="grid-item" data-index="3"><img src="https://lh3.googleusercontent.com/d/1oT4415mjACknXDRhcC_jsTYpglI0uF-G" alt="3"></div>
+                    <div class="grid-item" data-index="4"><img src="https://lh3.googleusercontent.com/d/1kLRaElpVeX720eItyuBTeNFSs_QFob6g" alt="4"></div>
+                    <div class="grid-item" data-index="5"><img src="https://lh3.googleusercontent.com/d/1UpzLuBFNgxfMyaBWvonFTDTJExkKX8uj" alt="5"></div>
+                    <div class="grid-item" data-index="6"><img src="https://lh3.googleusercontent.com/d/10DKkg-s3cay8ZTRE82yDHbxvj1vfe07O" alt="6"></div>
+                    <div class="grid-item" data-index="7"><img src="https://lh3.googleusercontent.com/d/1qcEFR2B5vpV8LNXk6RMvr1nKo0FvdSzD" alt="7"></div>
+                    <div class="grid-item" data-index="8"><img src="https://lh3.googleusercontent.com/d/1gdRapl3isZHSVvQJ1uwGWbSljXQX_Yuu" alt="8"></div>
+                    <div class="grid-item" data-index="9"><img src="https://lh3.googleusercontent.com/d/14p6AuVDR3kqmlxn0uwLlgkzFWFJnMbiR" alt="9"></div>
+                </div>
+            </div>
+
+            <div class="grid-footer">
+                <button class="captcha-btn" id="verifyBtn2">VERIFICAR</button>
+            </div>
+            <div id="errorMessage2" class="error-message" style="padding: 0 16px 16px 16px;">Selecciona las imágenes correctas.</div>
+        </div>
+
+        <!-- INTERFAZ 3: CALENDARIO FINAL -->
+        <div class="captcha-box final-page" id="finalPageBox">
+            <div class="calendar-header">
+                <h2>Septiembre 2026</h2>
+            </div>
+
+            <div class="calendar-grid">
+                <div class="calendar-day-name">Lun</div>
+                <div class="calendar-day-name">Mar</div>
+                <div class="calendar-day-name">Mié</div>
+                <div class="calendar-day-name">Jue</div>
+                <div class="calendar-day-name">Vie</div>
+                <div class="calendar-day-name">Sáb</div>
+                <div class="calendar-day-name">Dom</div>
+
+                <div class="calendar-cell empty"></div>
+
+                <div class="calendar-cell normal">1</div>
+                <div class="calendar-cell normal">2</div>
+                <div class="calendar-cell normal">3</div>
+                <div class="calendar-cell normal">4</div>
+                <div class="calendar-cell normal">5</div>
+                <div class="calendar-cell normal">6</div>
+                <div class="calendar-cell normal">7</div>
+                <div class="calendar-cell normal">8</div>
+                <div class="calendar-cell normal">9</div>
+                <div class="calendar-cell normal">10</div>
+                <div class="calendar-cell normal">11</div>
+                <div class="calendar-cell normal">12</div>
+                <div class="calendar-cell normal">13</div>
+                <div class="calendar-cell normal">14</div>
+                <div class="calendar-cell normal">15</div>
+                <div class="calendar-cell normal">16</div>
+                <div class="calendar-cell normal">17</div>
+                <div class="calendar-cell normal">18</div>
+                <div class="calendar-cell normal">19</div>
+                <div class="calendar-cell normal">20</div>
+                <div class="calendar-cell normal">21</div>
+                <div class="calendar-cell normal">22</div>
+                <div class="calendar-cell normal">23</div>
+                <div class="calendar-cell normal">24</div>
+                <div class="calendar-cell normal">25</div>
+                <div class="calendar-cell normal">26</div>
+                <div class="calendar-cell normal">27</div>
+                <div class="calendar-cell normal">28</div>
+                
+                <!-- DÍA 29 CON EFECTO PUERTA -->
+                <div class="door-wrapper">
+                    <div class="door-background-frame"></div>
+                    <div class="door-panel" id="day29Btn" title="Hacer clic">29</div>
+                </div>
+
+                <div class="calendar-cell normal">30</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PANTALLA SECRETA FINAL CON SLIDER DE 3 PÁGINAS -->
+    <div class="secret-page" id="secretPage">
+        <div class="pages-slider-container">
+            <div class="pages-track" id="pagesTrack">
+                
+                <!-- PÁGINA 1: MENSAJE PRINCIPAL -->
+                <div class="page-pane">
+                    <div class="secret-card">
+                        <h1 class="secret-title">34 meses a tu lado</h1>
+                        
+                        <div class="top-section">
+                            <div class="top-text">
+                                Mi niña bella, hoy se cumple 34 meses desde que mi vida cambió, desde que mi vida se hizo más feliz. Los 29 de cada mes son especiales para mi, pero sin dudas este es uno de los más importantes y es por el recuerdo de que fue cuando te hice mi primer regalo como novios, en ese 29 de septiembre del 2024, fue un momento muy especial para mi, al ver tu bella sonrisa y esos ojos hermosos brillando.
+                            </div>
+                            
+                            <div class="polaroid-wrapper">
+                                <div class="polaroid-tape"></div>
+                                <div class="polaroid-img-box">
+                                    <img src="https://lh3.googleusercontent.com/d/1BdVyBw_TK4Z8_8FyG8ZgGM6DQNtFpvSS" alt="Foto especial">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-text">
+                            Hoy también será una noche hermosa, podrás ver que es casi luna llena lo cual siento que lo hace aún más especial esta sorpresa y esta celebración por nuestros 34 meses juntos, también decirte que te amo demasiado mi cachetoncita :D y que quiero estar a tu lado por siempre. Espero sigas disfrutando de la sorpresita q estuve preparando estos días 😁.
+                        </div>
+                        
+                        <div class="secret-divider"></div>
+                        <div class="nav-buttons-container right-only">
+                            <button class="arrow-btn next" id="goToPage2Btn" title="Siguiente página">
+                                <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                                    <polygon points="0,0 12,10 0,20 20,20 32,10 20,0" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PÁGINA 2: HOJA CUADRADA GRANDE CON CIELO NOCTURNO Y CORAZÓN INTERACTIVO -->
+                <div class="page-pane">
+                    <div class="square-page-card">
+                        <div class="night-sky-box" id="nightSkyBox">
+                            <div class="heart-center-content" id="heartCenterContent">
+                                <div class="heart-initials">J & V</div>
+                                <div class="heart-subtitle">Por siempre juntos<br>mi amochito</div>
+                            </div>
+                            <div class="sky-instruction" id="skyInstruction">Haz clic para unir las estrellas ✨</div>
+                        </div>
+
+                        <div>
+                            <div class="secret-divider" style="margin-top: 0; margin-bottom: 12px;"></div>
+                            <div class="nav-buttons-container">
+                                <button class="arrow-btn prev" id="goToPage1Btn" title="Página anterior">
+                                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                                        <polygon points="0,0 12,10 0,20 20,20 32,10 20,0" />
+                                    </svg>
+                                </button>
+                                <button class="arrow-btn next" id="goToPage3Btn" title="Siguiente página">
+                                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                                        <polygon points="0,0 12,10 0,20 20,20 32,10 20,0" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PÁGINA 3: TERCERA PÁGINA CON RELOJ DE LUJO Y FUEGOS ARTIFICIALES -->
+                <div class="page-pane">
+                    <div class="square-page-card" id="page3Card">
+                        <div class="countdown-content-box" id="countdownBox">
+                            <div class="countdown-title">NUESTROS 3 AÑOS EN:</div>
+                            
+                            <div class="countdown-grid">
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="days">00</div>
+                                    <div class="countdown-label">Días</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="hours">00</div>
+                                    <div class="countdown-label">Horas</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="minutes">00</div>
+                                    <div class="countdown-label">Min</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="seconds">00</div>
+                                    <div class="countdown-label">Seg</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="secret-divider" style="margin-top: 0; margin-bottom: 12px;"></div>
+                            <div class="nav-buttons-container">
+                                <button class="arrow-btn prev" id="goToPage2From3Btn" title="Página anterior">
+                                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                                        <polygon points="0,0 12,10 0,20 20,20 32,10 20,0" />
+                                    </svg>
+                                </button>
+                                <button class="arrow-btn next" style="visibility: hidden; pointer-events: none;" title="Siguiente">
+                                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                                        <polygon points="0,0 12,10 0,20 20,20 32,10 20,0" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- TEMPORIZADOR EN TIEMPO REAL (OBJETIVO: 29 DE NOVIEMBRE DE 2026) ---
+        const targetDate = new Date("November 29, 2026 00:00:00").getTime();
+
+        function actualizarContador() {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference > 0) {
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById('days').innerText = String(days).padStart(2, '0');
+                document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+            } else {
+                document.getElementById('days').innerText = "00";
+                document.getElementById('hours').innerText = "00";
+                document.getElementById('minutes').innerText = "00";
+                document.getElementById('seconds').innerText = "00";
+            }
+        }
+
+        setInterval(actualizarContador, 1000);
+        actualizarContador();
+
+        // --- FUNCIÓN DE FUEGOS ARTIFICIALES ---
+        function lanzarFuegosArtificiales() {
+            const container = document.getElementById('page3Card');
+            const colors = ['#60a5fa', '#f43f5e', '#fbbf24', '#34d399', '#f472b6', '#ffffff'];
+            
+            for (let b = 0; b < 2; b++) {
+                setTimeout(() => {
+                    const startX = Math.random() * container.clientWidth * 0.6 + container.clientWidth * 0.2;
+                    const startY = Math.random() * container.clientHeight * 0.5 + container.clientHeight * 0.25;
+                    const particleCount = 24;
+
+                    for (let i = 0; i < particleCount; i++) {
+                        const particle = document.createElement('div');
+                        particle.classList.add('firework-particle');
+                        particle.style.left = `${startX}px`;
+                        particle.style.top = `${startY}px`;
+                        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                        const angle = (i / particleCount) * Math.PI * 2;
+                        const distance = Math.random() * 80 + 50;
+                        const destX = Math.cos(angle) * distance;
+                        const destY = Math.sin(angle) * distance;
+
+                        particle.style.setProperty('--x', `${destX}px`);
+                        particle.style.setProperty('--y', `${destY}px`);
+
+                        container.appendChild(particle);
+
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 1000);
+                    }
+                }, b * 400);
+            }
+        }
+
+        // --- GENERADOR DE ESTRELLAS Y EFECTO INTERACTIVO DE IDA Y VUELTA ---
+        const nightSkyBox = document.getElementById('nightSkyBox');
+        const heartCenterContent = document.getElementById('heartCenterContent');
+        const skyInstruction = document.getElementById('skyInstruction');
+        const numberOfStars = 55;
+        const stars = [];
+        let isHeartFormed = false;
+
+        for (let i = 0; i < numberOfStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            const size = Math.random() * 1.5 + 1.5;
+            
+            star.style.left = `${posX}%`;
+            star.style.top = `${posY}%`;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            star.style.animationDelay = `${Math.random() * 5}s`;
+
+            star.dataset.origX = posX;
+            star.dataset.origY = posY;
+
+            nightSkyBox.appendChild(star);
+            stars.push(star);
+        }
+
+        nightSkyBox.addEventListener('click', () => {
+            skyInstruction.classList.add('hidden');
+
+            if (!isHeartFormed) {
+                isHeartFormed = true;
+                const boxWidth = nightSkyBox.clientWidth;
+                const boxHeight = nightSkyBox.clientHeight;
+                const centerX = boxWidth / 2;
+                const centerY = boxHeight / 2 - 12;
+
+                stars.forEach((star, index) => {
+                    const t = (index / numberOfStars) * Math.PI * 2;
+                    const scale = 11;
+                    const hx = 16 * Math.pow(Math.sin(t), 3);
+                    const hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+                    const targetX = centerX + hx * scale;
+                    const targetY = centerY + hy * scale;
+
+                    star.style.animation = 'none';
+                    star.style.left = `${targetX}px`;
+                    star.style.top = `${targetY}px`;
+                    star.style.backgroundColor = '#93c5fd';
+                    star.style.boxShadow = '0 0 6px #60a5fa';
+                });
+
+                setTimeout(() => {
+                    heartCenterContent.classList.add('show');
+                }, 900);
+
+            } else {
+                isHeartFormed = false;
+                heartCenterContent.classList.remove('show');
+
+                stars.forEach((star) => {
+                    star.style.left = `${star.dataset.origX}%`;
+                    star.style.top = `${star.dataset.origY}%`;
+                    star.style.backgroundColor = '#ffffff';
+                    star.style.boxShadow = 'none';
+                    
+                    setTimeout(() => {
+                        star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite ease-in-out`;
+                    }, 1500);
+                });
+            }
+        });
+
+        // --- LÓGICA CAPTCHA 1 ---
+        const verifyBtn1 = document.getElementById('verifyBtn1');
+        const inputField = document.getElementById('captchaInput');
+        const errorMessage1 = document.getElementById('errorMessage1');
+        const captchaBox1 = document.getElementById('captchaBox1');
+        const captchaBox2 = document.getElementById('captchaBox2');
+
+        verifyBtn1.addEventListener('click', validarCaptcha1);
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validarCaptcha1();
+        });
+
+        function validarCaptcha1() {
+            const respuesta = inputField.value.trim().toLowerCase();
+
+            if (respuesta === "luck") {
+                errorMessage1.classList.remove('show');
+                captchaBox1.classList.remove('active');
+                setTimeout(() => {
+                    captchaBox2.classList.add('active');
+                }, 150);
+            } else {
+                errorMessage1.classList.add('show');
+                inputField.value = "";
+                inputField.focus();
+            }
+        }
+
+        // --- LÓGICA CAPTCHA 2 (CUADRÍCULA 3x3) ---
+        const gridItems = document.querySelectorAll('.grid-item');
+        const verifyBtn2 = document.getElementById('verifyBtn2');
+        const errorMessage2 = document.getElementById('errorMessage2');
+        const finalPageBox = document.getElementById('finalPageBox');
+
+        const correctas = [3, 4, 8, 9]; 
+
+        gridItems.forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        verifyBtn2.addEventListener('click', function() {
+            let seleccionadas = [];
+            gridItems.forEach(item => {
+                if (item.classList.contains('selected')) {
+                    seleccionadas.push(parseInt(item.getAttribute('data-index')));
+                }
+            });
+
+            const esCorrecto = correctas.length === seleccionadas.length && 
+                               correctas.every(val => seleccionadas.includes(val));
+
+            if (esCorrecto) {
+                errorMessage2.style.display = 'none';
+                captchaBox2.classList.remove('active');
+                setTimeout(() => {
+                    finalPageBox.classList.add('active');
+                }, 150);
+            } else {
+                errorMessage2.style.display = 'block';
+                gridItems.forEach(item => item.classList.remove('selected'));
+            }
+        });
+
+        // --- LÓGICA DE EXPANSIÓN, APERTURA Y ENTRADA ---
+        const day29Btn = document.getElementById('day29Btn');
+        const secretPage = document.getElementById('secretPage');
+        let isZoomed = false;
+        let animationId = null;
+
+        function abrirPuertaLentamente() {
+            const duracionTotal = 3000; 
+            let tiempoInicio = null;
+
+            day29Btn.style.animation = 'none'; 
+
+            function paso(tiempoActual) {
+                if (!tiempoInicio) tiempoInicio = tiempoActual;
+                let tiempoTranscurrido = tiempoActual - tiempoInicio;
+                let progreso = Math.min(tiempoTranscurrido / duracionTotal, 1);
+
+                let easeProgreso = 1 - Math.pow(1 - progreso, 3);
+                let gradosActuales = -110 * easeProgreso;
+
+                day29Btn.style.transform = `rotateY(${gradosActuales}deg)`;
+
+                if (progreso < 1) {
+                    animationId = requestAnimationFrame(paso);
+                } else {
+                    setTimeout(() => {
+                        finalPageBox.classList.add('enter-door');
+                        secretPage.classList.add('active');
+                    }, 400); 
+                }
+            }
+
+            animationId = requestAnimationFrame(paso);
+        }
+
+        day29Btn.addEventListener('click', function(e) {
+            e.stopPropagation(); 
+            if (isZoomed) return;
+            isZoomed = true;
+
+            finalPageBox.classList.add('zoomed-calendar');
+            
+            setTimeout(() => {
+                abrirPuertaLentamente();
+            }, 1250); 
+        });
+
+        // --- LÓGICA DE NAVEGACIÓN ENTRE 3 PÁGINAS ---
+        const pagesTrack = document.getElementById('pagesTrack');
+        const goToPage2Btn = document.getElementById('goToPage2Btn');
+        const goToPage1Btn = document.getElementById('goToPage1Btn');
+        const goToPage3Btn = document.getElementById('goToPage3Btn');
+        const goToPage2From3Btn = document.getElementById('goToPage2From3Btn');
+
+        goToPage2Btn.addEventListener('click', function() {
+            pagesTrack.style.transform = 'translateX(-33.333%)';
+        });
+
+        goToPage1Btn.addEventListener('click', function() {
+            pagesTrack.style.transform = 'translateX(0%)';
+        });
+
+        goToPage3Btn.addEventListener('click', function() {
+            pagesTrack.style.transform = 'translateX(-66.666%)';
+            setTimeout(lanzarFuegosArtificiales, 300);
+        });
+
+        goToPage2From3Btn.addEventListener('click', function() {
+            pagesTrack.style.transform = 'translateX(-33.333%)';
+        });
+    </script>
+
+</body>
+</html>
